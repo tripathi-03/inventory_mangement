@@ -1,102 +1,104 @@
-Inventory Management System
-(Movement-Based Stock Tracking)
+# 📦 Inventory Management System  
+### *(Movement-Based Stock Tracking)*
 
-A simple yet industry-correct Inventory Management System built using Phoenix (Elixir) for the backend and React for the frontend.
+A simple yet **industry-correct Inventory Management System** built using **Phoenix (Elixir)** for the backend and **React** for the frontend.
 
-Instead of storing stock directly, the system tracks inventory movements (IN, OUT, ADJUSTMENT) and derives stock dynamically, ensuring full auditability, correctness, and real-world applicability.
+Instead of storing stock directly, the system tracks **inventory movements** (`IN`, `OUT`, `ADJUSTMENT`) and **derives stock dynamically**, ensuring full auditability, correctness, and real-world applicability.
 
-🚀 Key Features
+---
 
-Create items with a unique SKU
+## 🚀 Key Features
 
-Record inventory movements (IN / OUT / ADJUSTMENT)
+- Create items with a **unique SKU**
+- Record inventory movements (**IN / OUT / ADJUSTMENT**)
+- View **movement history** per item
+- **Dynamic stock calculation** (no stock column in DB)
+- Clean and structured **REST APIs**
+- Automated **backend tests** (`mix test`)
+- Simple, functional **frontend UI**
 
-View movement history per item
+---
 
-Dynamic stock calculation (no stock column in DB)
+## 🧠 Inventory Logic (Core Concept)
 
-Clean and structured REST APIs
-
-Automated backend tests (mix test)
-
-Simple, functional frontend UI
-
-🧠 Inventory Logic (Core Concept)
-
-Stock is calculated using the formula:
+Stock is calculated using:
 
 Stock = sum(IN) − sum(OUT) ± ADJUSTMENT
 
-Why this design?
+yaml
+Copy code
 
-✅ Full audit trail of stock changes
+### Why this design?
 
-✅ Prevents accidental stock corruption
+- ✅ Full audit trail of stock changes  
+- ✅ Prevents accidental stock corruption  
+- ✅ Easy debugging and reporting  
+- ✅ Used in real-world **ERP / Warehouse systems**
 
-✅ Easy debugging and reporting
+---
 
-✅ Used in real-world ERP / Warehouse systems
+## 🏗️ Tech Stack
 
-🏗️ Tech Stack
-Backend
+### Backend
+- Elixir
+- Phoenix Framework
+- Ecto
+- PostgreSQL
 
-Elixir
+### Frontend
+- React
+- Axios
+- Vite
+- Basic CSS
 
-Phoenix Framework
+---
 
-Ecto
+## 📂 Project Structure
 
-PostgreSQL
-
-Frontend
-
-React
-
-Axios
-
-Vite
-
-Basic CSS
-
-📂 Project Structure
 inventory_assignment/
 │
 ├── backend/
-│   ├── lib/
-│   ├── priv/repo/migrations/
-│   ├── test/
-│   └── mix.exs
+│ ├── lib/
+│ ├── priv/repo/migrations/
+│ ├── test/
+│ └── mix.exs
 │
 └── frontend/
-    ├── src/
-    ├── package.json
-    └── vite.config.js
+├── src/
+├── package.json
+└── vite.config.js
 
-⚙️ Prerequisites
+yaml
+Copy code
+
+---
+
+## ⚙️ Prerequisites
 
 Ensure the following are installed:
 
-Elixir (>= 1.15)
+- Elixir (>= 1.15)
+- Erlang / OTP
+- PostgreSQL
+- Node.js (>= 18)
+- npm
 
-Erlang / OTP
+---
 
-PostgreSQL
+## 🔧 Backend Setup (Phoenix)
 
-Node.js (>= 18)
-
-npm
-
-🔧 Backend Setup (Phoenix)
-1️⃣ Navigate to backend
+### 1️⃣ Navigate to backend
+```bash
 cd backend
-
 2️⃣ Install dependencies
+bash
+Copy code
 mix deps.get
-
 3️⃣ Configure database
-
 Edit config/dev.exs:
 
+elixir
+Copy code
 config :backend, Backend.Repo,
   username: "postgres",
   password: "your_password",
@@ -104,74 +106,83 @@ config :backend, Backend.Repo,
   hostname: "localhost",
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
-
 4️⃣ Create & migrate database
+bash
+Copy code
 mix ecto.create
 mix ecto.migrate
-
 5️⃣ Start Phoenix server
+bash
+Copy code
 mix phx.server
-
-
 Backend runs at:
-👉 http://localhost:4000
+http://localhost:4000
 
 🧪 Running Backend Tests
-
 The project uses Elixir’s ExUnit framework.
 
 Setup test database
+bash
+Copy code
 MIX_ENV=test mix ecto.create
 MIX_ENV=test mix ecto.migrate
-
 Run all tests
+bash
+Copy code
 mix test
-
-
 Expected output:
 
+css
+Copy code
 Finished in 0.x seconds
 All tests passed
-
-
 ✔️ Always run tests before deployment or submission.
 
 🎨 Frontend Setup (React)
 1️⃣ Navigate to frontend
+bash
+Copy code
 cd frontend
-
 2️⃣ Install dependencies
+bash
+Copy code
 npm install
-
 3️⃣ Start frontend server
+bash
+Copy code
 npm run dev
-
-
 Frontend runs at:
-👉 http://localhost:5173
+http://localhost:5173
 
 🔗 API Endpoints
 Items
 Method	Endpoint	Description
 GET	/api/items	List all items
 POST	/api/items	Create a new item
+
 Inventory Movements
 Method	Endpoint	Description
 POST	/api/movements	Create inventory movement
 GET	/api/items/:id/movements	Get movement history
+
 📥 Sample API Requests
 Create Item
+http
+Copy code
 POST /api/items
-
+json
+Copy code
 {
   "name": "Keyboard",
   "sku": "KEY-001",
   "unit": "pcs"
 }
-
 Create Inventory Movement
+http
+Copy code
 POST /api/movements
-
+json
+Copy code
 {
   "movement": {
     "item_id": "item-uuid",
@@ -179,12 +190,11 @@ POST /api/movements
     "quantity": 25
   }
 }
-
 Get Movement History
+h
+Copy code
 GET /api/items/:id/movements
-
 📝 Assumptions
-
 Quantity is always a positive integer
 
 Movement type determines stock direction
@@ -196,7 +206,6 @@ Authentication is not implemented (assignment scope)
 UI kept minimal to focus on core logic
 
 🚧 Future Enhancements
-
 Prevent OUT when stock is insufficient
 
 Running stock balance per movement
@@ -210,7 +219,6 @@ Improved UI & UX
 Export reports (CSV / Excel)
 
 ✅ Final Notes
-
 This project demonstrates:
 
 Correct inventory domain modeling
@@ -223,9 +231,8 @@ Test-driven backend design
 
 Scalable, production-ready logic
 
-📌 Assignment-ready | Interview-ready | Easy to extend
+Assignment-ready | Interview-ready | Easy to extend
 
 👤 Author
-
 Divyanshu Tripathi
 Purpose: Backend / Full-Stack Assessment Project
