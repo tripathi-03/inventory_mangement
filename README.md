@@ -26,7 +26,6 @@ Stock is calculated using:
 Stock = sum(IN) − sum(OUT) ± ADJUSTMENT
 
 yaml
-Copy code
 
 ### Why this design?
 
@@ -69,7 +68,6 @@ inventory_assignment/
 └── vite.config.js
 
 yaml
-Copy code
 
 ---
 
@@ -92,13 +90,12 @@ Ensure the following are installed:
 cd backend
 2️⃣ Install dependencies
 bash
-Copy code
 mix deps.get
+
 3️⃣ Configure database
 Edit config/dev.exs:
 
 elixir
-Copy code
 config :backend, Backend.Repo,
   username: "postgres",
   password: "your_password",
@@ -108,12 +105,10 @@ config :backend, Backend.Repo,
   pool_size: 10
 4️⃣ Create & migrate database
 bash
-Copy code
 mix ecto.create
 mix ecto.migrate
 5️⃣ Start Phoenix server
 bash
-Copy code
 mix phx.server
 Backend runs at:
 http://localhost:4000
@@ -123,17 +118,14 @@ The project uses Elixir’s ExUnit framework.
 
 Setup test database
 bash
-Copy code
 MIX_ENV=test mix ecto.create
 MIX_ENV=test mix ecto.migrate
 Run all tests
 bash
-Copy code
 mix test
 Expected output:
 
 css
-Copy code
 Finished in 0.x seconds
 All tests passed
 ✔️ Always run tests before deployment or submission.
@@ -141,15 +133,12 @@ All tests passed
 🎨 Frontend Setup (React)
 1️⃣ Navigate to frontend
 bash
-Copy code
 cd frontend
 2️⃣ Install dependencies
 bash
-Copy code
 npm install
 3️⃣ Start frontend server
 bash
-Copy code
 npm run dev
 Frontend runs at:
 http://localhost:5173
@@ -168,10 +157,8 @@ GET	/api/items/:id/movements	Get movement history
 📥 Sample API Requests
 Create Item
 http
-Copy code
 POST /api/items
 json
-Copy code
 {
   "name": "Keyboard",
   "sku": "KEY-001",
@@ -179,10 +166,8 @@ Copy code
 }
 Create Inventory Movement
 http
-Copy code
 POST /api/movements
 json
-Copy code
 {
   "movement": {
     "item_id": "item-uuid",
@@ -192,7 +177,6 @@ Copy code
 }
 Get Movement History
 h
-Copy code
 GET /api/items/:id/movements
 📝 Assumptions
 Quantity is always a positive integer
