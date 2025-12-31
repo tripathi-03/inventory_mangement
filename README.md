@@ -88,11 +88,11 @@ Ensure the following are installed:
 ### 1️⃣ Navigate to backend
 ```bash
 cd backend
-2️⃣ Install dependencies
+### 2️⃣ Install dependencies
 bash
 mix deps.get
 
-3️⃣ Configure database
+### 3️⃣ Configure database
 Edit config/dev.exs:
 
 elixir
@@ -103,17 +103,17 @@ config :backend, Backend.Repo,
   hostname: "localhost",
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
-4️⃣ Create & migrate database
+### 4️⃣ Create & migrate database
 bash
 mix ecto.create
 mix ecto.migrate
-5️⃣ Start Phoenix server
+### 5️⃣ Start Phoenix server
 bash
 mix phx.server
 Backend runs at:
 http://localhost:4000
 
-🧪 Running Backend Tests
+### 🧪 Running Backend Tests
 The project uses Elixir’s ExUnit framework.
 
 Setup test database
@@ -130,31 +130,31 @@ Finished in 0.x seconds
 All tests passed
 ✔️ Always run tests before deployment or submission.
 
-🎨 Frontend Setup (React)
-1️⃣ Navigate to frontend
+### 🎨 Frontend Setup (React)
+##1️⃣ Navigate to frontend
 bash
 cd frontend
-2️⃣ Install dependencies
+##2️⃣ Install dependencies
 bash
 npm install
-3️⃣ Start frontend server
+##3️⃣ Start frontend server
 bash
 npm run dev
 Frontend runs at:
 http://localhost:5173
 
-🔗 API Endpoints
+### 🔗 API Endpoints
 Items
 Method	Endpoint	Description
 GET	/api/items	List all items
 POST	/api/items	Create a new item
 
-Inventory Movements
+### Inventory Movements
 Method	Endpoint	Description
 POST	/api/movements	Create inventory movement
 GET	/api/items/:id/movements	Get movement history
 
-📥 Sample API Requests
+### 📥 Sample API Requests
 Create Item
 http
 POST /api/items
