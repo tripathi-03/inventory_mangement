@@ -1,65 +1,59 @@
-Inventory Management System
+# 📦 Inventory Management System  
+### *(Movement-Based Stock Tracking)*
 
-(Movement-Based Stock Tracking)
+A simple yet **industry-correct Inventory Management System** built using **Phoenix (Elixir)** for the backend and **React** for the frontend.
 
-A simple yet industry-correct Inventory Management System built using Phoenix (Elixir) for the backend and React for the frontend.
+Instead of storing stock directly, the system tracks **inventory movements** (`IN`, `OUT`, `ADJUSTMENT`) and **derives stock dynamically**, ensuring full auditability, correctness, and real-world applicability.
 
-Instead of storing stock directly, the system tracks inventory movements (IN, OUT, ADJUSTMENT) and derives stock dynamically, ensuring full auditability and correctness.
+---
 
-🚀 Key Features
+## 🚀 Key Features
 
-Create items with unique SKU
+- Create items with a **unique SKU**
+- Record inventory movements (**IN / OUT / ADJUSTMENT**)
+- View **movement history** per item
+- **Dynamic stock calculation** (no stock column in DB)
+- Clean and structured **REST APIs**
+- Automated **backend tests** (`mix test`)
+- Simple, functional **frontend UI**
 
-Record inventory movements (IN / OUT / ADJUSTMENT)
+---
 
-View movement history per item
-
-Stock calculated dynamically (no stock column)
-
-Clean REST APIs
-
-Automated backend tests (mix test)
-
-Simple, functional frontend UI
-
-🧠 Inventory Logic (Core Concept)
+## 🧠 Inventory Logic (Core Concept)
 
 Stock is calculated using:
 
 Stock = sum(IN) − sum(OUT) ± ADJUSTMENT
 
-Why this design?
+yaml
 
-✅ Full audit trail of stock changes
+### Why this design?
 
-✅ Prevents accidental stock corruption
+- ✅ Full audit trail of stock changes  
+- ✅ Prevents accidental stock corruption  
+- ✅ Easy debugging and reporting  
+- ✅ Used in real-world **ERP / Warehouse systems**
 
-✅ Easy debugging and reporting
+---
 
-✅ Used in real-world ERP / warehouse systems
+## 🏗️ Tech Stack
 
-🏗️ Tech Stack
-Backend
+### Backend
+- Elixir
+- Phoenix Framework
+- Ecto
+- PostgreSQL
 
-Elixir
+### Frontend
+- React
+- Axios
+- Vite
+- Basic CSS
 
-Phoenix Framework
+---
 
-Ecto
+## 📂 Project Structure
 
-PostgreSQL
-
-Frontend
-
-React
-
-Axios
-
-Vite
-
-Basic CSS
-
-📂 Project Structure
 inventory_assignment/
 │
 ├── backend/
@@ -73,114 +67,118 @@ inventory_assignment/
 ├── package.json
 └── vite.config.js
 
-⚙️ Prerequisites
+yaml
+
+---
+
+## ⚙️ Prerequisites
 
 Ensure the following are installed:
 
-Elixir (>= 1.15)
+- Elixir (>= 1.15)
+- Erlang / OTP
+- PostgreSQL
+- Node.js (>= 18)
+- npm
 
-Erlang / OTP
+---
 
-PostgreSQL
+## 🔧 Backend Setup (Phoenix)
 
-Node.js (>= 18)
-
-npm
-
-🔧 Backend Setup (Phoenix)
-1️⃣ Navigate to backend
+### 1️⃣ Navigate to backend
+```bash
 cd backend
-
-2️⃣ Install dependencies
+### 2️⃣ Install dependencies
+bash
 mix deps.get
 
-3️⃣ Configure database
-
+### 3️⃣ Configure database
 Edit config/dev.exs:
 
+elixir
 config :backend, Backend.Repo,
-username: "postgres",
-password: "your_password",
-database: "inventory_dev",
-hostname: "localhost",
-show_sensitive_data_on_connection_error: true,
-pool_size: 10
-
-4️⃣ Create & migrate database
+  username: "postgres",
+  password: "your_password",
+  database: "inventory_dev",
+  hostname: "localhost",
+  show_sensitive_data_on_connection_error: true,
+  pool_size: 10
+### 4️⃣ Create & migrate database
+bash
 mix ecto.create
 mix ecto.migrate
-
-5️⃣ Start Phoenix server
+### 5️⃣ Start Phoenix server
+bash
 mix phx.server
-
 Backend runs at:
-
 http://localhost:4000
 
-🧪 Running Backend Tests
-
-The project uses Elixir’s built-in ExUnit framework.
+### 🧪 Running Backend Tests
+The project uses Elixir’s ExUnit framework.
 
 Setup test database
+bash
 MIX_ENV=test mix ecto.create
 MIX_ENV=test mix ecto.migrate
-
 Run all tests
+bash
 mix test
+Expected output:
 
-Expected output
+css
 Finished in 0.x seconds
 All tests passed
-
 ✔️ Always run tests before deployment or submission.
 
-🎨 Frontend Setup (React)
-1️⃣ Navigate to frontend
+### 🎨 Frontend Setup (React)
+##1️⃣ Navigate to frontend
+bash
 cd frontend
-
-2️⃣ Install dependencies
+##2️⃣ Install dependencies
+bash
 npm install
-
-3️⃣ Start frontend server
+##3️⃣ Start frontend server
+bash
 npm run dev
-
 Frontend runs at:
-
 http://localhost:5173
 
-🔗 API Endpoints
+### 🔗 API Endpoints
 Items
-Method Endpoint Description
-GET /api/items List all items
-POST /api/items Create a new item
-Inventory Movements
-Method Endpoint Description
-POST /api/movements Create inventory movement
-GET /api/items/:id/movements Get movement history
-📥 Sample API Requests
+Method	Endpoint	Description
+GET	/api/items	List all items
+POST	/api/items	Create a new item
+
+### Inventory Movements
+Method	Endpoint	Description
+POST	/api/movements	Create inventory movement
+GET	/api/items/:id/movements	Get movement history
+
+### 📥 Sample API Requests
 Create Item
+http
 POST /api/items
+json
 {
-"name": "Keyboard",
-"sku": "KEY-001",
-"unit": "pcs"
+  "name": "Keyboard",
+  "sku": "KEY-001",
+  "unit": "pcs"
 }
-
 Create Inventory Movement
+http
 POST /api/movements
+json
 {
-"movement": {
-"item_id": "item-uuid",
-"movement_type": "IN",
-"quantity": 25
+  "movement": {
+    "item_id": "item-uuid",
+    "movement_type": "IN",
+    "quantity": 25
+  }
 }
-}
-
 Get Movement History
+h
 GET /api/items/:id/movements
-
 📝 Assumptions
-
 Quantity is always a positive integer
 
 Movement type determines stock direction
@@ -192,12 +190,11 @@ Authentication is not implemented (assignment scope)
 UI kept minimal to focus on core logic
 
 🚧 Future Enhancements
-
 Prevent OUT when stock is insufficient
 
 Running stock balance per movement
 
-Pagination & filters for history
+Pagination & filters for movement history
 
 Authentication & authorization
 
@@ -205,21 +202,7 @@ Improved UI & UX
 
 Export reports (CSV / Excel)
 
-✅ Final Notes
 
-This project demonstrates:
+👤 Author
+Divyanshu Tripathi
 
-Correct inventory modeling
-
-Clean Phoenix architecture
-
-Proper use of Ecto & migrations
-
-Test-driven backend design
-
-Scalable and production-ready logic
-
-It is assignment-ready, interview-ready, and easy to extend.
-
-Author: Divyanshu Tripathi
-Purpose: Backend / Full-Stack Assessment Project
