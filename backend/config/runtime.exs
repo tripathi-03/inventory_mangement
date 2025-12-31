@@ -10,5 +10,6 @@ if config_env() == :prod do
   config :backend, Backend.Repo,
     url: database_url,
     ssl: true,
+    socket_options: [:inet6],
     pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
 end
