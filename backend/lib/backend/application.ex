@@ -9,8 +9,12 @@ defmodule Backend.Application do
       BackendWeb.Telemetry,
       Backend.Repo,
 
-      # ✅ Run migrations automatically on startup (Render Free fix)
-      {Task, fn -> Backend.Release.migrate() end},
+      # ✅ Run migrations AFTER repo is ready (Render Free safe)
+      {Task,
+       fn ->
+         Process.sleep(5_000)
+         Backend.Release.migrate()
+       end},
 
       {DNSCluster,
        query: Application.get_env(:backend, :dns_cluster_query) || :ignore},
