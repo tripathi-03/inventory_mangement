@@ -8,14 +8,6 @@ defmodule Backend.Application do
     children = [
       BackendWeb.Telemetry,
       Backend.Repo,
-
-      # ✅ Run migrations AFTER repo is ready (Render Free safe)
-      {Task,
-       fn ->
-         Process.sleep(5_000)
-         Backend.Release.migrate()
-       end},
-
       {DNSCluster,
        query: Application.get_env(:backend, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Backend.PubSub},
