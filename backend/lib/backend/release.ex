@@ -1,20 +1,24 @@
-import Config
+defmodule Backend.Release do
+  @app :backend
 
-# Force SSL in production (Render terminates HTTPS)
-config :backend, BackendWeb.Endpoint,
-  force_ssl: [rewrite_on: [:x_forwarded_proto]],
-  exclude: [
-    hosts: ["localhost", "127.0.0.1"]
-  ],
-  server: true
+  def migrate do
+    load_app()
 
-# Always enable SSL for database connections in production
-config :backend, Backend.Repo,
-  ssl: true
+    for repo <- repos() do
+      {:ok, _, _} = Ecto.Migrator.with_repo(repo, &Ecto.Migrator.run(&1, :up, all: true))
+    end
+  end
 
-# Swoosh configuration for production
-config :swoosh, api_client: Swoosh.ApiClient.Req
-config :swoosh, local: false
+  def rollback(repo, version) do
+    load_app()
+    {:ok, _, _} = Ecto.Migrator.with_repo(repo, &Ecto.Migrator.run(&1, :down, to: version))
+  end
 
-# Reduce logging noise in production
-config :logger, level: :info
+  defp repos do
+    Application.fetch_env!(@app, :ecto_repos)
+  end
+
+  defp load_app do
+    Application.load(@app)
+  end
+end
