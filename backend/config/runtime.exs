@@ -1,6 +1,5 @@
 import Config
 
-# Enable Phoenix server in releases
 if System.get_env("PHX_SERVER") do
   config :backend, BackendWeb.Endpoint, server: true
 end
@@ -18,12 +17,10 @@ if config_env() == :prod do
   secret_key_base =
     System.fetch_env!("SECRET_KEY_BASE")
 
+  # ✅ Render INTERNAL Postgres → SSL OFF (fixes selfsigned_peer error)
   config :backend, Backend.Repo,
     url: database_url,
-    ssl: true,
-    ssl_opts: [
-      verify: :verify_none
-    ],
+    ssl: false,
     pool_size: String.to_integer(System.get_env("POOL_SIZE", "10"))
 
   config :backend, BackendWeb.Endpoint,
