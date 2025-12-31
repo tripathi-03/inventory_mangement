@@ -202,21 +202,7 @@ Improved UI & UX
 
 Export reports (CSV / Excel)
 
-✅ Final Notes
-This project demonstrates:
-
-Correct inventory domain modeling
-
-Clean Phoenix architecture
-
-Proper use of Ecto & migrations
-
-Test-driven backend design
-
-Scalable, production-ready logic
-
-Assignment-ready | Interview-ready | Easy to extend
 
 👤 Author
 Divyanshu Tripathi
-Purpose: Backend / Full-Stack Assessment Project
+
