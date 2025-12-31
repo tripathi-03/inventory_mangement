@@ -2,15 +2,21 @@ defmodule Backend.Release do
   @app :backend
 
   def migrate do
-    Application.ensure_all_started(@app)
+    load_app()
 
-    for repo <- Application.fetch_env!(@app, :ecto_repos) do
-      Ecto.Migrator.run(repo, migrations_path(), :up, all: true)
+    for repo <- repos() do
+      {:ok, _, _} =
+        Ecto.Migrator.with_repo(repo, fn repo ->
+          Ecto.Migrator.run(repo, :up, all: true)
+        end)
     end
   end
 
-  defp migrations_path do
-    priv_dir = :code.priv_dir(@app)
-    Path.join(priv_dir, "repo/migrations")
+  defp repos do
+    Application.fetch_env!(@app, :ecto_repos)
+  end
+
+  defp load_app do
+    Application.load(@app)
   end
 end
