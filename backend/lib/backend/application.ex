@@ -5,6 +5,9 @@ defmodule Backend.Application do
 
   @impl true
   def start(_type, _args) do
+    # 👇 Forces Backend.Release to be included in the release
+    _ = Backend.Release
+
     children = [
       BackendWeb.Telemetry,
       Backend.Repo,
