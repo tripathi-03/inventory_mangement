@@ -23,18 +23,4 @@ defmodule Backend.Application do
     BackendWeb.Endpoint.config_change(changed, removed)
     :ok
   end
-
-  # ✅ THIS FUNCTION IS GUARANTEED TO EXIST IN THE RELEASE
-  def migrate do
-    Application.ensure_all_started(:backend)
-
-    for repo <- Application.fetch_env!(:backend, :ecto_repos) do
-      Ecto.Migrator.run(
-        repo,
-        Application.app_dir(:backend, "priv/repo/migrations"),
-        :up,
-        all: true
-      )
-    end
-  end
 end
