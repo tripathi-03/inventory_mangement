@@ -29,27 +29,25 @@ defmodule Backend.Release do
   defp ensure_ssl_config do
     # For Render's managed PostgreSQL, SSL is REQUIRED
     # We must explicitly set this before Ecto tries to connect
-    # When using eval in releases, runtime.exs config might not be fully applied
-    repo_config = Application.get_env(@app, Backend.Repo, [])
-    
-    # Get DATABASE_URL from environment (Render provides this)
-    database_url = System.get_env("DATABASE_URL") || Keyword.get(repo_config, :url)
+    # When using eval in releases, we need to completely rebuild the config
+    database_url = System.get_env("DATABASE_URL") || 
+      raise "DATABASE_URL environment variable is not set"
     
     pool_size = case System.get_env("POOL_SIZE") do
-      nil -> Keyword.get(repo_config, :pool_size, 10)
+      nil -> 10
       size -> String.to_integer(size)
     end
     
-    # Build config with SSL ALWAYS set to true for Render
+    # Completely rebuild the config from scratch to ensure SSL is set
     # This is critical - Render's PostgreSQL requires SSL connections
-    # We merge repo_config first, then override with our SSL settings
-    final_config = 
-      repo_config
-      |> Keyword.put(:ssl, true)  # Force SSL to true
-      |> Keyword.put(:url, database_url)  # Ensure DATABASE_URL is set
-      |> Keyword.put(:pool_size, pool_size)  # Ensure pool_size is set
+    final_config = [
+      url: database_url,
+      pool_size: pool_size,
+      ssl: true
+    ]
     
-    # Explicitly set the configuration - this must happen before repo connection
-    Application.put_env(@app, Backend.Repo, final_config)
+    # Delete any existing config and set fresh to avoid conflicts
+    Application.delete_env(@app, Backend.Repo)
+    Application.put_env(@app, Backend.Repo, final_config, persistent: true)
   end
 end
