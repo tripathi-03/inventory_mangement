@@ -15,10 +15,13 @@ defmodule BackendWeb.Endpoint do
     websocket: [connect_info: [session: @session_options]],
     longpoll: [connect_info: [session: @session_options]]
 
-  # CORS configuration - must be FIRST in the pipeline to handle preflight requests
-  # This handles OPTIONS preflight requests automatically
+  # Handle OPTIONS preflight requests at endpoint level - BEFORE router
+  # This guarantees OPTIONS never reaches Router, preventing 404s
+  plug :handle_preflight
+
+  # CORS configuration for actual requests (non-OPTIONS)
   plug CORSPlug,
-    origin: "*",
+    origin: ["https://inventory-mangement-inky.vercel.app", "*"],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"],
     headers: [
       "accept",
@@ -39,8 +42,7 @@ defmodule BackendWeb.Endpoint do
       "x-requested-with"
     ],
     max_age: 86400,
-    credentials: false,
-    send_preflight_response?: true
+    credentials: false
 
   # Serve at "/" the static files from "priv/static" directory.
   #
@@ -77,4 +79,20 @@ defmodule BackendWeb.Endpoint do
   plug Plug.Head
   plug Plug.Session, @session_options
   plug BackendWeb.Router
+
+  # Handle OPTIONS preflight requests at endpoint level
+  # This intercepts OPTIONS before they reach the router, preventing 404s
+  defp handle_preflight(conn, _opts) do
+    if conn.method == "OPTIONS" do
+      conn
+      |> put_resp_header("access-control-allow-origin", "*")
+      |> put_resp_header("access-control-allow-methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD")
+      |> put_resp_header("access-control-allow-headers", "Content-Type, Authorization, Accept, Origin, Referer, User-Agent, sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform, sec-fetch-dest, sec-fetch-mode, sec-fetch-site")
+      |> put_resp_header("access-control-max-age", "86400")
+      |> send_resp(204, "")
+      |> halt()
+    else
+      conn
+    end
+  end
 end

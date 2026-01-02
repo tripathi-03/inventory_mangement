@@ -8,9 +8,6 @@ defmodule BackendWeb.Router do
   scope "/api", BackendWeb do
     pipe_through :api
 
-    # Handle OPTIONS preflight requests - must be before other routes
-    options "/*path", CORSController, :options
-
     get "/health", HealthController, :check
 
     post "/items", ItemController, :create
