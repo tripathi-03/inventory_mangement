@@ -16,7 +16,11 @@ defmodule BackendWeb.Endpoint do
     longpoll: [connect_info: [session: @session_options]]
 
 plug CORSPlug,
-  origin: ["http://localhost:5173"],
+  origin: [
+    "http://localhost:5173",
+    ~r/https:\/\/.*\.onrender\.com/,
+    ~r/https:\/\/.*\.vercel\.app/
+  ],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   headers: ["Authorization", "Content-Type", "Accept"],
   expose: ["Authorization"]

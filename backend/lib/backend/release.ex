@@ -40,10 +40,15 @@ defmodule Backend.Release do
     
     # Completely rebuild the config from scratch to ensure SSL is set
     # This is critical - Render's PostgreSQL requires SSL connections
+    # We use ssl_opts to handle self-signed certificates
     final_config = [
       url: database_url,
       pool_size: pool_size,
-      ssl: true
+      ssl: true,
+      ssl_opts: [
+        verify: :verify_none,
+        server_name_indication: :disable
+      ]
     ]
     
     # Delete any existing config and set fresh to avoid conflicts
