@@ -40,6 +40,16 @@ config :backend, Backend.Repo,
   ssl: true,
   ssl_opts: [verify: :verify_none]
 
+# Configure CORS
+config :cors_plug,
+  origin: [
+    "http://localhost:5173",
+    ~r/https?:\/\/.*\.onrender\.com/,
+    ~r/https?:\/\/.*\.vercel\.app/
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  headers: ["Authorization", "Content-Type", "Accept"]
+
 # Swoosh (safe defaults for production)
 config :swoosh, api_client: Swoosh.ApiClient.Req
 config :swoosh, local: false
