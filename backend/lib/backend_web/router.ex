@@ -10,9 +10,12 @@ defmodule BackendWeb.Router do
 
     post "/items", ItemController, :create
     get "/items", ItemController, :index
+    options "/items", ItemController, :options
 
     post "/movements", MovementController, :create
+    options "/movements", MovementController, :options
     get "/items/:id/movements", MovementController, :history
+    options "/items/:id/movements", MovementController, :options
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
