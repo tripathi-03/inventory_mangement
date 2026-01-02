@@ -5,6 +5,11 @@ defmodule BackendWeb.Router do
     plug :accepts, ["json"]
   end
 
+  # Root-level ping endpoint for health checks (no pipeline, no auth)
+  scope "/", BackendWeb do
+    get "/ping", PingController, :index
+  end
+
   scope "/api", BackendWeb do
     pipe_through :api
 
