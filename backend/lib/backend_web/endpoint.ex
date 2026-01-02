@@ -1,6 +1,16 @@
 defmodule BackendWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :backend
 
+  # Override error rendering to ensure CORS headers are always present
+  @doc false
+  defoverridable render_errors: 2
+
+  def render_errors(conn, opts) do
+    # Add CORS headers before rendering errors
+    conn = cors_headers(conn, [])
+    super(conn, opts)
+  end
+
   # The session will be stored in the cookie and signed,
   # this means its contents can be read but not tampered with.
   # Set :encryption_salt if you would also like to encrypt it.
@@ -15,36 +25,12 @@ defmodule BackendWeb.Endpoint do
     websocket: [connect_info: [session: @session_options]],
     longpoll: [connect_info: [session: @session_options]]
 
+  # CORS configuration - must be early in the pipeline to catch all responses including errors
+  plug :cors_headers
+
   # Handle OPTIONS preflight requests at endpoint level - BEFORE router
   # This guarantees OPTIONS never reaches Router, preventing 404s
   plug :handle_preflight
-
-  # CORS configuration for actual requests (non-OPTIONS)
-  # CORSPlug will add headers to all responses
-  plug CORSPlug,
-    origin: "*",
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"],
-    headers: [
-      "accept",
-      "accept-encoding",
-      "accept-language",
-      "authorization",
-      "content-type",
-      "dnt",
-      "origin",
-      "referer",
-      "sec-ch-ua",
-      "sec-ch-ua-mobile",
-      "sec-ch-ua-platform",
-      "sec-fetch-dest",
-      "sec-fetch-mode",
-      "sec-fetch-site",
-      "user-agent",
-      "x-requested-with"
-    ],
-    max_age: 86400,
-    credentials: false,
-    send_preflight_response?: false
 
   # Serve at "/" the static files from "priv/static" directory.
   #
@@ -81,6 +67,68 @@ defmodule BackendWeb.Endpoint do
   plug Plug.Head
   plug Plug.Session, @session_options
   plug BackendWeb.Router
+  
+  # Ensure CORS headers are added even after router (for error responses)
+  plug :ensure_cors_headers
+
+  # Add CORS headers to all responses (including errors)
+  defp cors_headers(conn, _opts) do
+    # Get the origin from the request
+    origin = 
+      case Plug.Conn.get_req_header(conn, "origin") do
+        [origin_header] -> 
+          # List of explicitly allowed origins
+          allowed_origins = [
+            "https://inventory-mangement-inky.vercel.app",
+            "http://localhost:5173",
+            "http://localhost:3000",
+            "http://127.0.0.1:5173",
+            "http://127.0.0.1:3000"
+          ]
+          
+          # Check if origin is explicitly allowed
+          cond do
+            origin_header in allowed_origins ->
+              origin_header
+            
+            # In development, allow localhost origins
+            code_reloading?() and String.starts_with?(origin_header, "http://localhost") ->
+              origin_header
+            
+            code_reloading?() and String.starts_with?(origin_header, "http://127.0.0.1") ->
+              origin_header
+            
+            # In production, allow vercel.app domains (more permissive)
+            not code_reloading?() and String.contains?(origin_header, "vercel.app") ->
+              origin_header
+            
+            # In production, also allow any https origin for now (can be restricted later)
+            not code_reloading?() and String.starts_with?(origin_header, "https://") ->
+              origin_header
+            
+            # Default: don't allow
+            true ->
+              nil
+          end
+        _ -> 
+          # No origin header - only allow in development
+          if code_reloading?(), do: "*", else: nil
+      end
+    
+    # Always add CORS headers if we have a valid origin, or use wildcard in dev
+    final_origin = origin || (if code_reloading?(), do: "*", else: nil)
+    
+    if final_origin do
+      conn
+      |> put_resp_header("access-control-allow-origin", final_origin)
+      |> put_resp_header("access-control-allow-methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD")
+      |> put_resp_header("access-control-allow-headers", "Content-Type, Authorization, Accept, Origin, Referer, User-Agent, sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform, sec-fetch-dest, sec-fetch-mode, sec-fetch-site, x-requested-with")
+      |> put_resp_header("access-control-max-age", "86400")
+      |> put_resp_header("access-control-allow-credentials", "false")
+    else
+      conn
+    end
+  end
 
   # Handle OPTIONS preflight requests at endpoint level
   # This intercepts OPTIONS before they reach the router, preventing 404s
@@ -90,28 +138,83 @@ defmodule BackendWeb.Endpoint do
         # Get the origin from the request header
         origin = 
           case Plug.Conn.get_req_header(conn, "origin") do
-            [origin_header] -> origin_header
-            _ -> "*"
+            [origin_header] -> 
+              # List of explicitly allowed origins
+              allowed_origins = [
+                "https://inventory-mangement-inky.vercel.app",
+                "http://localhost:5173",
+                "http://localhost:3000",
+                "http://127.0.0.1:5173",
+                "http://127.0.0.1:3000"
+              ]
+              
+              # Check if origin is explicitly allowed
+              cond do
+                origin_header in allowed_origins ->
+                  origin_header
+                
+                # In development, allow localhost origins
+                code_reloading?() and String.starts_with?(origin_header, "http://localhost") ->
+                  origin_header
+                
+                code_reloading?() and String.starts_with?(origin_header, "http://127.0.0.1") ->
+                  origin_header
+                
+                # In production, allow vercel.app domains
+                not code_reloading?() and String.contains?(origin_header, "vercel.app") ->
+                  origin_header
+                
+                # In production, also allow any https origin for now (can be restricted later)
+                not code_reloading?() and String.starts_with?(origin_header, "https://") ->
+                  origin_header
+                
+                # Default: don't allow
+                true ->
+                  nil
+              end
+            _ -> 
+              # No origin header - only allow in development
+              if code_reloading?(), do: "*", else: nil
           end
         
         # Get requested headers from preflight
         requested_headers = 
           case Plug.Conn.get_req_header(conn, "access-control-request-headers") do
             [headers] -> headers
-            _ -> "Content-Type, Authorization, Accept, Origin, Referer, User-Agent, sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform, sec-fetch-dest, sec-fetch-mode, sec-fetch-site"
+            _ -> "Content-Type, Authorization, Accept, Origin, Referer, User-Agent, sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform, sec-fetch-dest, sec-fetch-mode, sec-fetch-site, x-requested-with"
           end
         
-        conn
-        |> put_resp_header("access-control-allow-origin", origin)
-        |> put_resp_header("access-control-allow-methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD")
-        |> put_resp_header("access-control-allow-headers", requested_headers)
-        |> put_resp_header("access-control-max-age", "86400")
-        |> put_resp_header("access-control-allow-credentials", "false")
-        |> send_resp(204, "")
-        |> halt()
+        final_origin = origin || (if code_reloading?(), do: "*", else: nil)
+        
+        if final_origin do
+          conn
+          |> put_resp_header("access-control-allow-origin", final_origin)
+          |> put_resp_header("access-control-allow-methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD")
+          |> put_resp_header("access-control-allow-headers", requested_headers)
+          |> put_resp_header("access-control-max-age", "86400")
+          |> put_resp_header("access-control-allow-credentials", "false")
+          |> send_resp(204, "")
+          |> halt()
+        else
+          conn
+          |> put_resp_header("access-control-allow-origin", "*")
+          |> send_resp(403, "")
+          |> halt()
+        end
       
       _ ->
         conn
+    end
+  end
+
+  # Ensure CORS headers are present on all responses, including errors
+  defp ensure_cors_headers(conn, _opts) do
+    # Check if CORS headers are already set
+    if Plug.Conn.get_resp_header(conn, "access-control-allow-origin") == [] do
+      # Headers not set, add them now
+      cors_headers(conn, [])
+    else
+      conn
     end
   end
 end
