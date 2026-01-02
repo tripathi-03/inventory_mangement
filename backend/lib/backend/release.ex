@@ -2,10 +2,9 @@ defmodule Backend.Release do
   @app :backend
 
   def migrate do
-    load_app()
-    
-    # Ensure SSL is configured for database connections before migrations
+    # Ensure SSL is configured BEFORE loading the app
     ensure_ssl_config()
+    load_app()
 
     for repo <- repos() do
       {:ok, _, _} = Ecto.Migrator.with_repo(repo, &Ecto.Migrator.run(&1, :up, all: true))
@@ -13,8 +12,8 @@ defmodule Backend.Release do
   end
 
   def rollback(repo, version) do
-    load_app()
     ensure_ssl_config()
+    load_app()
     {:ok, _, _} = Ecto.Migrator.with_repo(repo, &Ecto.Migrator.run(&1, :down, to: version))
   end
 
@@ -38,13 +37,13 @@ defmodule Backend.Release do
       size -> String.to_integer(size)
     end
     
-    # Completely rebuild the config from scratch to ensure SSL is set
-    # This is critical - Render's PostgreSQL requires SSL connections
-    # We use ssl_opts to handle self-signed certificates
+    # For Render's PostgreSQL, we need to ensure SSL opts are properly configured
+    # The ssl_opts must be set to handle self-signed certificates
     final_config = [
       url: database_url,
       pool_size: pool_size,
       ssl: true,
+      # Critical: verify_none allows self-signed certificates from Render
       ssl_opts: [verify: :verify_none]
     ]
     
