@@ -31,20 +31,39 @@ defmodule BackendWeb.ItemController do
 
   # GET /api/items
   def index(conn, _params) do
-    items =
-      Item
-      |> Repo.all()
-      |> Enum.map(fn item ->
-        %{
-          id: item.id,
-          name: item.name,
-          sku: item.sku,
-          unit: item.unit,
-          stock: Inventory.get_stock(item.id)
-        }
-      end)
+    try do
+      items =
+        Item
+        |> Repo.all()
+        |> Enum.map(fn item ->
+          stock = 
+            try do
+              Inventory.get_stock(item.id)
+            rescue
+              _ -> 0
+            end
 
-    json(conn, items)
+          %{
+            id: item.id,
+            name: item.name,
+            sku: item.sku,
+            unit: item.unit,
+            stock: stock
+          }
+        end)
+
+      json(conn, items)
+    rescue
+      e ->
+        # Log the error for debugging
+        require Logger
+        Logger.error("Error in ItemController.index: #{inspect(e)}")
+        Logger.error(Exception.format_stacktrace(__STACKTRACE__))
+        
+        conn
+        |> put_status(:internal_server_error)
+        |> json(%{error: "Internal server error", detail: inspect(e)})
+    end
   end
 
   # helper

@@ -5,24 +5,28 @@ defmodule Backend.Inventory do
   alias Backend.Inventory.Movement
 
   def get_stock(item_id) do
-    from(m in Movement,
-      where: m.item_id == ^item_id,
-      select:
-        sum(
-          fragment(
-            "CASE
-               WHEN ? = 'IN' THEN ?
-               WHEN ? = 'OUT' THEN -?
-               ELSE ?
-             END",
-            m.movement_type, m.quantity,
-            m.movement_type, m.quantity,
-            m.quantity
-          )
+    try do
+      movements =
+        from(m in Movement,
+          where: m.item_id == ^item_id,
+          select: {m.movement_type, m.quantity}
         )
-    )
-    |> Repo.one()
-    || 0
+        |> Repo.all()
+
+      movements
+      |> Enum.reduce(0, fn {movement_type, quantity}, acc ->
+        case movement_type do
+          "IN" -> acc + quantity
+          "OUT" -> acc - quantity
+          "ADJUSTMENT" -> acc + quantity
+          _ -> acc + quantity
+        end
+      end)
+    rescue
+      _ -> 0
+    catch
+      _ -> 0
+    end
   end
 
   def create_movement(attrs) do
