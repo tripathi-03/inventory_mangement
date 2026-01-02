@@ -36,7 +36,7 @@ defmodule BackendWeb.HealthController do
           }
       end
     rescue
-      %Postgrex.Error{} = e ->
+      e in [Postgrex.Error] ->
         %{
           connected: false,
           error: inspect(e),

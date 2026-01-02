@@ -57,27 +57,30 @@ defmodule BackendWeb.ItemController do
 
       json(conn, items)
     rescue
-      %Postgrex.Error{postgres: %{code: :undefined_table}} = e ->
-        require Logger
-        Logger.error("Table does not exist. Run migrations: #{inspect(e)}")
-        conn
-        |> put_status(:internal_server_error)
-        |> json(%{
-          error: "Database table missing",
-          message: "Please run database migrations: mix ecto.migrate"
-        })
+      e in [Postgrex.Error] ->
+        # Check if it's an undefined table error
+        error_msg = Exception.message(e)
+        if error_msg =~ "does not exist" or error_msg =~ "undefined_table" do
+          require Logger
+          Logger.error("Table does not exist. Run migrations: #{inspect(e)}")
+          conn
+          |> put_status(:internal_server_error)
+          |> json(%{
+            error: "Database table missing",
+            message: "Please run database migrations: mix ecto.migrate"
+          })
+        else
+          require Logger
+          Logger.error("PostgreSQL error: #{inspect(e)}")
+          conn
+          |> put_status(:service_unavailable)
+          |> json(%{
+            error: "Database connection error",
+            message: "Cannot connect to database. Check DATABASE_URL and connection settings."
+          })
+        end
       
-      %Postgrex.Error{} = e ->
-        require Logger
-        Logger.error("PostgreSQL error: #{inspect(e)}")
-        conn
-        |> put_status(:service_unavailable)
-        |> json(%{
-          error: "Database connection error",
-          message: "Cannot connect to database. Check DATABASE_URL and connection settings."
-        })
-      
-      %Ecto.QueryError{} = e ->
+      e in [Ecto.QueryError] ->
         require Logger
         Logger.error("Query error: #{inspect(e)}")
         conn
