@@ -39,12 +39,12 @@ defmodule Backend.Release do
     
     # For Render's PostgreSQL, we need to ensure SSL opts are properly configured
     # The ssl_opts must be set to handle self-signed certificates
+    # Note: Postgrex accepts SSL options directly in ssl: key (ssl_opts is deprecated)
     final_config = [
       url: database_url,
       pool_size: pool_size,
-      ssl: true,
-      # Critical: verify_none allows self-signed certificates from Render
-      ssl_opts: [verify: :verify_none]
+      # Pass SSL options directly - verify_none allows self-signed certificates from Render
+      ssl: [verify: :verify_none]
     ]
     
     # Delete any existing config and set fresh to avoid conflicts

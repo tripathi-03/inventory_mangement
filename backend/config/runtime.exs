@@ -15,9 +15,8 @@ if config_env() == :prod do
   config :backend, Backend.Repo,
     url: database_url,
     pool_size: pool_size,
-    # ssl: true is already set in prod.exs, but we keep it here as a safety net
-    ssl: true,
-    ssl_opts: [verify: :verify_none]
+    # Pass SSL options directly - verify_none allows self-signed certificates from Render
+    ssl: [verify: :verify_none]
 
   # Secret key base (required for sessions, signing, etc.)
   secret_key_base =

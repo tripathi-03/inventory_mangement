@@ -36,9 +36,9 @@ config :backend, BackendWeb.Endpoint,
   server: true
 
 # Configure Repo (values injected at runtime)
+# Note: Postgrex accepts SSL options directly in ssl: key (ssl_opts is deprecated)
 config :backend, Backend.Repo,
-  ssl: true,
-  ssl_opts: [verify: :verify_none]
+  ssl: [verify: :verify_none]
 
 # Swoosh (safe defaults for production)
 config :swoosh, api_client: Swoosh.ApiClient.Req
