@@ -1,6 +1,9 @@
 defmodule BackendWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :backend
 
+  # Module attribute to detect environment at compile time
+  @is_dev Mix.env() == :dev
+
   # The session will be stored in the cookie and signed,
   # this means its contents can be read but not tampered with.
   # Set :encryption_salt if you would also like to encrypt it.
@@ -82,18 +85,18 @@ defmodule BackendWeb.Endpoint do
               origin_header
             
             # In development, allow localhost origins
-            code_reloading?() and String.starts_with?(origin_header, "http://localhost") ->
+            @is_dev and String.starts_with?(origin_header, "http://localhost") ->
               origin_header
             
-            code_reloading?() and String.starts_with?(origin_header, "http://127.0.0.1") ->
+            @is_dev and String.starts_with?(origin_header, "http://127.0.0.1") ->
               origin_header
             
             # In production, allow vercel.app domains (more permissive)
-            not code_reloading?() and String.contains?(origin_header, "vercel.app") ->
+            not @is_dev and String.contains?(origin_header, "vercel.app") ->
               origin_header
             
             # In production, also allow any https origin for now (can be restricted later)
-            not code_reloading?() and String.starts_with?(origin_header, "https://") ->
+            not @is_dev and String.starts_with?(origin_header, "https://") ->
               origin_header
             
             # Default: don't allow
@@ -102,11 +105,11 @@ defmodule BackendWeb.Endpoint do
           end
         _ -> 
           # No origin header - only allow in development
-          if code_reloading?(), do: "*", else: nil
+          if @is_dev, do: "*", else: nil
       end
     
     # Always add CORS headers if we have a valid origin, or use wildcard in dev
-    final_origin = origin || (if code_reloading?(), do: "*", else: nil)
+    final_origin = origin || (if @is_dev, do: "*", else: nil)
     
     if final_origin do
       conn
@@ -144,18 +147,18 @@ defmodule BackendWeb.Endpoint do
                   origin_header
                 
                 # In development, allow localhost origins
-                code_reloading?() and String.starts_with?(origin_header, "http://localhost") ->
+                @is_dev and String.starts_with?(origin_header, "http://localhost") ->
                   origin_header
                 
-                code_reloading?() and String.starts_with?(origin_header, "http://127.0.0.1") ->
+                @is_dev and String.starts_with?(origin_header, "http://127.0.0.1") ->
                   origin_header
                 
                 # In production, allow vercel.app domains
-                not code_reloading?() and String.contains?(origin_header, "vercel.app") ->
+                not @is_dev and String.contains?(origin_header, "vercel.app") ->
                   origin_header
                 
                 # In production, also allow any https origin for now (can be restricted later)
-                not code_reloading?() and String.starts_with?(origin_header, "https://") ->
+                not @is_dev and String.starts_with?(origin_header, "https://") ->
                   origin_header
                 
                 # Default: don't allow
@@ -164,7 +167,7 @@ defmodule BackendWeb.Endpoint do
               end
             _ -> 
               # No origin header - only allow in development
-              if code_reloading?(), do: "*", else: nil
+              if @is_dev, do: "*", else: nil
           end
         
         # Get requested headers from preflight
@@ -174,7 +177,7 @@ defmodule BackendWeb.Endpoint do
             _ -> "Content-Type, Authorization, Accept, Origin, Referer, User-Agent, sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform, sec-fetch-dest, sec-fetch-mode, sec-fetch-site, x-requested-with"
           end
         
-        final_origin = origin || (if code_reloading?(), do: "*", else: nil)
+        final_origin = origin || (if @is_dev, do: "*", else: nil)
         
         if final_origin do
           conn
