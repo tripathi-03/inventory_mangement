@@ -54,11 +54,6 @@ defmodule BackendWeb.MovementController do
     json(conn, movements)
   end
 
-  # OPTIONS handler for CORS preflight
-  def options(conn, _params) do
-    send_resp(conn, :no_content, "")
-  end
-
   defp translate_errors(changeset) do
     Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end)
   end

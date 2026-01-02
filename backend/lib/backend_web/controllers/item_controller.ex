@@ -47,11 +47,6 @@ defmodule BackendWeb.ItemController do
     json(conn, items)
   end
 
-  # OPTIONS handler for CORS preflight
-  def options(conn, _params) do
-    send_resp(conn, :no_content, "")
-  end
-
   # helper
   defp translate_errors(changeset) do
     Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} -> msg end)
