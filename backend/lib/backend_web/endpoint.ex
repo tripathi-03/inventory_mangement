@@ -15,28 +15,11 @@ defmodule BackendWeb.Endpoint do
     websocket: [connect_info: [session: @session_options]],
     longpoll: [connect_info: [session: @session_options]]
 
-  def cors_origin(%Plug.Conn{} = conn) do
-    origin = 
-      conn
-      |> Plug.Conn.get_req_header("origin")
-      |> List.first()
-    
-    cond do
-      is_nil(origin) or origin == "" -> 
-        nil
-      origin == "http://localhost:5173" -> 
-        origin
-      String.ends_with?(origin, ".onrender.com") -> 
-        origin
-      String.ends_with?(origin, ".vercel.app") -> 
-        origin
-      true -> 
-        nil
-    end
-  end
-
 plug CORSPlug,
-  origin: &BackendWeb.Endpoint.cors_origin/1,
+  origin: [
+    "http://localhost:5173",
+    "https://inventory-mangement-inky.vercel.app"
+  ],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   headers: ["Authorization", "Content-Type", "Accept"],
   expose: ["Authorization"]
