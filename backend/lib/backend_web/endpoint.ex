@@ -15,11 +15,30 @@ defmodule BackendWeb.Endpoint do
     websocket: [connect_info: [session: @session_options]],
     longpoll: [connect_info: [session: @session_options]]
 
-plug CORSPlug,
-  origin: "*",
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  headers: ["Content-Type", "Accept", "Authorization"],
-  credentials: false
+  # CORS configuration - must be early in the pipeline to handle preflight requests
+  # This handles OPTIONS preflight requests automatically
+  plug CORSPlug,
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    headers: [
+      "accept",
+      "accept-encoding",
+      "accept-language",
+      "authorization",
+      "content-type",
+      "dnt",
+      "origin",
+      "referer",
+      "sec-ch-ua",
+      "sec-ch-ua-mobile",
+      "sec-ch-ua-platform",
+      "sec-fetch-dest",
+      "sec-fetch-mode",
+      "sec-fetch-site",
+      "user-agent"
+    ],
+    max_age: 86400,
+    credentials: false
 
   # Serve at "/" the static files from "priv/static" directory.
   #
