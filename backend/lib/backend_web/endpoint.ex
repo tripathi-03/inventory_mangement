@@ -15,14 +15,16 @@ defmodule BackendWeb.Endpoint do
     websocket: [connect_info: [session: @session_options]],
     longpoll: [connect_info: [session: @session_options]]
 
-  @cors_origins [
-    "http://localhost:5173",
-    ~r/https?:\/\/.*\.onrender\.com/,
-    ~r/https?:\/\/.*\.vercel\.app/
-  ]
+  def cors_origins do
+    [
+      "http://localhost:5173",
+      ~r/https?:\/\/.*\.onrender\.com/,
+      ~r/https?:\/\/.*\.vercel\.app/
+    ]
+  end
 
 plug CORSPlug,
-  origin: @cors_origins,
+  origin: &BackendWeb.Endpoint.cors_origins/0,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   headers: ["Authorization", "Content-Type", "Accept"],
   expose: ["Authorization"]
