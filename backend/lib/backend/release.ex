@@ -37,18 +37,18 @@ defmodule Backend.Release do
       size -> String.to_integer(size)
     end
     
-    # For Render's PostgreSQL, we need to ensure SSL opts are properly configured
-    # The ssl_opts must be set to handle self-signed certificates
-    # Note: Postgrex accepts SSL options directly in ssl: key (ssl_opts is deprecated)
-    final_config = [
-      url: database_url,
-      pool_size: pool_size,
-      # Pass SSL options directly - verify_none allows self-signed certificates from Render
-      ssl: [verify: :verify_none]
-    ]
+    # Get existing config if any (from runtime.exs evaluation)
+    existing_config = Application.get_env(@app, Backend.Repo, [])
     
-    # Delete any existing config and set fresh to avoid conflicts
-    Application.delete_env(@app, Backend.Repo)
-    Application.put_env(@app, Backend.Repo, final_config, persistent: true)
+    # Merge existing config with our SSL settings, ensuring SSL config takes precedence
+    final_config = 
+      existing_config
+      |> Keyword.put(:url, database_url)
+      |> Keyword.put(:pool_size, pool_size)
+      |> Keyword.put(:ssl, true)
+      |> Keyword.put(:ssl_opts, [verify: :verify_none])
+    
+    # Set the merged config
+    Application.put_env(@app, Backend.Repo, final_config)
   end
 end
