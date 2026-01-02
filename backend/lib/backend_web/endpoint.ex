@@ -15,11 +15,15 @@ defmodule BackendWeb.Endpoint do
     websocket: [connect_info: [session: @session_options]],
     longpoll: [connect_info: [session: @session_options]]
 
+  def cors_origins do
+    [
+      "http://localhost:5173",
+      "https://inventory-mangement-inky.vercel.app"
+    ]
+  end
+
 plug CORSPlug,
-  origin: [
-    "http://localhost:5173",
-    "https://inventory-mangement-inky.vercel.app"
-  ],
+  origin: &BackendWeb.Endpoint.cors_origins/0,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   headers: ["Authorization", "Content-Type", "Accept"],
   expose: ["Authorization"]
