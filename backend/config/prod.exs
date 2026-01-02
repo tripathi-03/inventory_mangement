@@ -37,7 +37,8 @@ config :backend, BackendWeb.Endpoint,
 
 # Configure Repo (values injected at runtime)
 config :backend, Backend.Repo,
-  ssl: true
+  ssl: true,
+  ssl_opts: [verify: :verify_none]
 
 # Swoosh (safe defaults for production)
 config :swoosh, api_client: Swoosh.ApiClient.Req

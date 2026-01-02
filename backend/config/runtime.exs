@@ -17,10 +17,7 @@ if config_env() == :prod do
     pool_size: pool_size,
     # ssl: true is already set in prod.exs, but we keep it here as a safety net
     ssl: true,
-    ssl_opts: [
-      verify: :verify_none,
-      server_name_indication: :disable
-    ]
+    ssl_opts: [verify: :verify_none]
 
   # Secret key base (required for sessions, signing, etc.)
   secret_key_base =

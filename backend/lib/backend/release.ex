@@ -45,10 +45,7 @@ defmodule Backend.Release do
       url: database_url,
       pool_size: pool_size,
       ssl: true,
-      ssl_opts: [
-        verify: :verify_none,
-        server_name_indication: :disable
-      ]
+      ssl_opts: [verify: :verify_none]
     ]
     
     # Delete any existing config and set fresh to avoid conflicts
