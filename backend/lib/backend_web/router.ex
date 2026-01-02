@@ -8,6 +8,8 @@ defmodule BackendWeb.Router do
   scope "/api", BackendWeb do
     pipe_through :api
 
+    get "/health", HealthController, :check
+
     post "/items", ItemController, :create
     get "/items", ItemController, :index
 

@@ -40,7 +40,10 @@ defmodule BackendWeb.ItemController do
             try do
               Inventory.get_stock(item.id)
             rescue
-              _ -> 0
+              e ->
+                require Logger
+                Logger.warn("Error calculating stock for item #{item.id}: #{inspect(e)}")
+                0
             end
 
           %{
@@ -54,15 +57,65 @@ defmodule BackendWeb.ItemController do
 
       json(conn, items)
     rescue
+      %Postgrex.Error{postgres: %{code: :undefined_table}} = e ->
+        require Logger
+        Logger.error("Table does not exist. Run migrations: #{inspect(e)}")
+        conn
+        |> put_status(:internal_server_error)
+        |> json(%{
+          error: "Database table missing",
+          message: "Please run database migrations: mix ecto.migrate"
+        })
+      
+      %Postgrex.Error{} = e ->
+        require Logger
+        Logger.error("PostgreSQL error: #{inspect(e)}")
+        conn
+        |> put_status(:service_unavailable)
+        |> json(%{
+          error: "Database connection error",
+          message: "Cannot connect to database. Check DATABASE_URL and connection settings."
+        })
+      
+      %Ecto.QueryError{} = e ->
+        require Logger
+        Logger.error("Query error: #{inspect(e)}")
+        conn
+        |> put_status(:internal_server_error)
+        |> json(%{
+          error: "Database query error",
+          message: "Please check database migrations and schema"
+        })
+      
       e ->
-        # Log the error for debugging
         require Logger
         Logger.error("Error in ItemController.index: #{inspect(e)}")
         Logger.error(Exception.format_stacktrace(__STACKTRACE__))
         
         conn
         |> put_status(:internal_server_error)
-        |> json(%{error: "Internal server error", detail: inspect(e)})
+        |> json(%{
+          error: "Internal server error",
+          message: "An unexpected error occurred",
+          type: inspect(e.__struct__)
+        })
+    catch
+      :exit, {:noproc, _} ->
+        require Logger
+        Logger.error("Repo process not available - database not started")
+        conn
+        |> put_status(:service_unavailable)
+        |> json(%{
+          error: "Database unavailable",
+          message: "Database process not running. Check application startup."
+        })
+      
+      :exit, reason ->
+        require Logger
+        Logger.error("Exit error: #{inspect(reason)}")
+        conn
+        |> put_status(:internal_server_error)
+        |> json(%{error: "Process exit", message: inspect(reason)})
     end
   end
 
