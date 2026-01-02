@@ -20,8 +20,9 @@ defmodule BackendWeb.Endpoint do
   plug :handle_preflight
 
   # CORS configuration for actual requests (non-OPTIONS)
+  # CORSPlug will add headers to all responses
   plug CORSPlug,
-    origin: ["https://inventory-mangement-inky.vercel.app", "*"],
+    origin: "*",
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"],
     headers: [
       "accept",
@@ -42,7 +43,8 @@ defmodule BackendWeb.Endpoint do
       "x-requested-with"
     ],
     max_age: 86400,
-    credentials: false
+    credentials: false,
+    send_preflight_response?: false
 
   # Serve at "/" the static files from "priv/static" directory.
   #
@@ -83,16 +85,33 @@ defmodule BackendWeb.Endpoint do
   # Handle OPTIONS preflight requests at endpoint level
   # This intercepts OPTIONS before they reach the router, preventing 404s
   defp handle_preflight(conn, _opts) do
-    if conn.method == "OPTIONS" do
-      conn
-      |> put_resp_header("access-control-allow-origin", "*")
-      |> put_resp_header("access-control-allow-methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD")
-      |> put_resp_header("access-control-allow-headers", "Content-Type, Authorization, Accept, Origin, Referer, User-Agent, sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform, sec-fetch-dest, sec-fetch-mode, sec-fetch-site")
-      |> put_resp_header("access-control-max-age", "86400")
-      |> send_resp(204, "")
-      |> halt()
-    else
-      conn
+    case conn.method do
+      "OPTIONS" ->
+        # Get the origin from the request header
+        origin = 
+          case Plug.Conn.get_req_header(conn, "origin") do
+            [origin_header] -> origin_header
+            _ -> "*"
+          end
+        
+        # Get requested headers from preflight
+        requested_headers = 
+          case Plug.Conn.get_req_header(conn, "access-control-request-headers") do
+            [headers] -> headers
+            _ -> "Content-Type, Authorization, Accept, Origin, Referer, User-Agent, sec-ch-ua, sec-ch-ua-mobile, sec-ch-ua-platform, sec-fetch-dest, sec-fetch-mode, sec-fetch-site"
+          end
+        
+        conn
+        |> put_resp_header("access-control-allow-origin", origin)
+        |> put_resp_header("access-control-allow-methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD")
+        |> put_resp_header("access-control-allow-headers", requested_headers)
+        |> put_resp_header("access-control-max-age", "86400")
+        |> put_resp_header("access-control-allow-credentials", "false")
+        |> send_resp(204, "")
+        |> halt()
+      
+      _ ->
+        conn
     end
   end
 end
