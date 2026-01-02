@@ -15,16 +15,24 @@ defmodule BackendWeb.Endpoint do
     websocket: [connect_info: [session: @session_options]],
     longpoll: [connect_info: [session: @session_options]]
 
-  def allowed_origin?(origin) when is_binary(origin) do
-    origin == "http://localhost:5173" ||
-      String.contains?(origin, ".onrender.com") ||
-      String.contains?(origin, ".vercel.app")
+  def allowed_origins(%Plug.Conn{} = conn) do
+    # Get the origin from the request headers
+    origin = 
+      conn
+      |> Plug.Conn.get_req_header("origin")
+      |> List.first()
+    
+    cond do
+      is_nil(origin) or origin == "" -> []
+      origin == "http://localhost:5173" -> [origin]
+      String.contains?(origin, ".onrender.com") -> [origin]
+      String.contains?(origin, ".vercel.app") -> [origin]
+      true -> []
+    end
   end
 
-  def allowed_origin?(_), do: false
-
 plug CORSPlug,
-  origin: &BackendWeb.Endpoint.allowed_origin?/1,
+  origin: &BackendWeb.Endpoint.allowed_origins/1,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   headers: ["Authorization", "Content-Type", "Accept"],
   expose: ["Authorization"]
