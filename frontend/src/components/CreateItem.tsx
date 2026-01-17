@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { api } from "../api/client";
 import "./CreateItem.css";
 export default function CreateItem() {
@@ -6,18 +6,26 @@ export default function CreateItem() {
   const [sku, setSku] = useState("");
   const [unit, setUnit] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const submit = async () => {
+  const submit = useCallback(async () => {
+    if (isSubmitting) {
+      return;
+    }
+
     try {
+      setIsSubmitting(true);
       setError(null);
+      setSuccess(null);
 
       await api.post("/items", {
-        name,
-        sku,
+        name: name.trim(),
+        sku: sku.trim(),
         unit,
       });
 
-      alert("Item created successfully");
+      setSuccess("Item created successfully");
 
       setName("");
       setSku("");
@@ -30,14 +38,17 @@ export default function CreateItem() {
       } else {
         setError("Something went wrong");
       }
+    } finally {
+      setIsSubmitting(false);
     }
-  };
+  }, [isSubmitting, name, sku, unit]);
 
   return (
     <div>
       <h2>Create Item</h2>
 
       {error && <p style={{ color: "red" }}>{error}</p>}
+      {success && <p style={{ color: "green" }}>{success}</p>}
 
       <input
         placeholder="Name"
@@ -61,7 +72,12 @@ export default function CreateItem() {
       <br />
       <br />
 
-      <button onClick={submit}>Create</button>
+      <button
+        onClick={submit}
+        disabled={isSubmitting || !name.trim() || !sku.trim() || !unit}
+      >
+        {isSubmitting ? "Creating..." : "Create"}
+      </button>
     </div>
   );
 }
