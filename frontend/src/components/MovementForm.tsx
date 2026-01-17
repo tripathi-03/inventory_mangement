@@ -33,27 +33,48 @@ export default function MovementForm() {
   }, [isSubmitting, itemId, quantity, type]);
 
   return (
-    <div>
-      <h2>Inventory Movement</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {success && <p style={{ color: "green" }}>{success}</p>}
-      <input
-        placeholder="Item ID"
-        onChange={(e) => setItemId(e.target.value)}
-      />
-      <input
-        type="number"
-        placeholder="Quantity"
-        onChange={(e) => setQuantity(Number(e.target.value))}
-      />
-      <select onChange={(e) => setType(e.target.value)}>
-        <option value="IN">IN</option>
-        <option value="OUT">OUT</option>
-        <option value="ADJUSTMENT">ADJUSTMENT</option>
-      </select>
-      <button onClick={submit} disabled={isSubmitting}>
-        {isSubmitting ? "Submitting..." : "Submit"}
-      </button>
+    <div className="card">
+      <div className="card-header">
+        <h2 className="card-title">Inventory Movement</h2>
+        <p className="card-subtitle">Record incoming and outgoing stock.</p>
+      </div>
+
+      {error && <p className="status error">{error}</p>}
+      {success && <p className="status success">{success}</p>}
+
+      <div className="form">
+        <label className="field">
+          <span className="label">Item ID</span>
+          <input
+            className="input"
+            placeholder="Enter item ID"
+            onChange={(e) => setItemId(e.target.value)}
+          />
+        </label>
+
+        <label className="field">
+          <span className="label">Quantity</span>
+          <input
+            className="input"
+            type="number"
+            placeholder="0"
+            onChange={(e) => setQuantity(Number(e.target.value))}
+          />
+        </label>
+
+        <label className="field">
+          <span className="label">Movement type</span>
+          <select className="select" onChange={(e) => setType(e.target.value)}>
+            <option value="IN">IN</option>
+            <option value="OUT">OUT</option>
+            <option value="ADJUSTMENT">ADJUSTMENT</option>
+          </select>
+        </label>
+
+        <button className="btn primary" onClick={submit} disabled={isSubmitting}>
+          {isSubmitting ? "Submitting..." : "Submit"}
+        </button>
+      </div>
     </div>
   );
 }

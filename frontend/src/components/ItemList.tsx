@@ -27,14 +27,23 @@ export default function ItemList() {
   }, []);
 
   return (
-    <div>
-      <h2>Items</h2>
-      {isLoading && <p>Loading items...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <ul>
+    <div className="card">
+      <div className="card-header">
+        <h2 className="card-title">Items</h2>
+        <p className="card-subtitle">Live view of available inventory.</p>
+      </div>
+
+      {isLoading && <p className="status">Loading items...</p>}
+      {error && <p className="status error">{error}</p>}
+
+      <ul className="list">
         {items.map((item) => (
-          <li key={item.id}>
-            {item.name} ({item.sku}) — Stock: {item.stock}
+          <li key={item.id} className="list-item">
+            <div>
+              <p className="item-name">{item.name}</p>
+              <p className="item-meta">{item.sku}</p>
+            </div>
+            <span className="badge">Stock: {item.stock}</span>
           </li>
         ))}
       </ul>

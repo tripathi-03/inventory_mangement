@@ -1,6 +1,5 @@
 import { useCallback, useState } from "react";
 import { api } from "../api/client";
-import "./CreateItem.css";
 export default function CreateItem() {
   const [name, setName] = useState("");
   const [sku, setSku] = useState("");
@@ -44,40 +43,58 @@ export default function CreateItem() {
   }, [isSubmitting, name, sku, unit]);
 
   return (
-    <div>
-      <h2>Create Item</h2>
+    <div className="card">
+      <div className="card-header">
+        <h2 className="card-title">Create Item</h2>
+        <p className="card-subtitle">Add new stock keeping units fast.</p>
+      </div>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {success && <p style={{ color: "green" }}>{success}</p>}
+      {error && <p className="status error">{error}</p>}
+      {success && <p className="status success">{success}</p>}
 
-      <input
-        placeholder="Name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-      />
+      <div className="form">
+        <label className="field">
+          <span className="label">Item name</span>
+          <input
+            className="input"
+            placeholder="e.g. Organic rice"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+        </label>
 
-      <input
-        placeholder="SKU"
-        value={sku}
-        onChange={(e) => setSku(e.target.value)}
-      />
+        <label className="field">
+          <span className="label">SKU</span>
+          <input
+            className="input"
+            placeholder="e.g. RICE-001"
+            value={sku}
+            onChange={(e) => setSku(e.target.value)}
+          />
+        </label>
 
-      <select value={unit} onChange={(e) => setUnit(e.target.value)}>
-        <option value="">Select unit</option>
-        <option value="pcs">pcs</option>
-        <option value="kg">kg</option>
-        <option value="litre">litre</option>
-      </select>
+        <label className="field">
+          <span className="label">Unit</span>
+          <select
+            className="select"
+            value={unit}
+            onChange={(e) => setUnit(e.target.value)}
+          >
+            <option value="">Select unit</option>
+            <option value="pcs">pcs</option>
+            <option value="kg">kg</option>
+            <option value="litre">litre</option>
+          </select>
+        </label>
 
-      <br />
-      <br />
-
-      <button
-        onClick={submit}
-        disabled={isSubmitting || !name.trim() || !sku.trim() || !unit}
-      >
-        {isSubmitting ? "Creating..." : "Create"}
-      </button>
+        <button
+          className="btn primary"
+          onClick={submit}
+          disabled={isSubmitting || !name.trim() || !sku.trim() || !unit}
+        >
+          {isSubmitting ? "Creating..." : "Create"}
+        </button>
+      </div>
     </div>
   );
 }
